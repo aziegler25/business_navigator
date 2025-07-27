@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Business Plan Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a4d6b 0%, #2c5e7a 50%, #3e708a 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 100%;
+            height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a4d6b, #2c5e7a);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="25" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="70" cy="15" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="90" cy="35" r="0.8" fill="rgba(255,255,255,0.06)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .brand {
+            font-size: 16px;
+            color: #f4a261;
+            font-weight: 600;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #f4a261, #e76f51);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(244, 162, 97, 0.5);
+        }
+        
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .ai-avatar {
+            background: linear-gradient(135deg, #1a4d6b, #2c5e7a);
+            color: white;
+            border: 2px solid #f4a261;
+        }
+        
+        .user-avatar {
+            background: linear-gradient(135deg, #e76f51, #d62d20);
+            color: white;
+        }
+        
+        .message-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            line-height: 1.6;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, #1a4d6b, #2c5e7a);
+            color: white;
+        }
+        
+        .input-container {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #1a4d6b;
+            box-shadow: 0 0 0 3px rgba(26, 77, 107, 0.1);
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #1a4d6b, #2c5e7a);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(26, 77, 107, 0.3);
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(26, 77, 107, 0.4);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .quick-btn {
+            background: #ecf0f1;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-btn:hover {
+            background: #1a4d6b;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(26, 77, 107, 0.3);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #1a4d6b;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .section-preview {
+            background: linear-gradient(135deg, #f8fcff, #f0f8ff);
+            border-left: 4px solid #1a4d6b;
+            padding: 18px;
+            margin: 15px 0;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 0 2px 8px rgba(26, 77, 107, 0.1);
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s ease;
+        }
+        
+        .export-options {
+            background: white;
+            border: 2px solid #1a4d6b;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 8px 25px rgba(26, 77, 107, 0.15);
+        }
+        
+        .export-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .export-option:hover {
+            background: #e3f2fd;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .export-option-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .export-option-text {
+            flex: 1;
+        }
+        
+        .export-option-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        
+        .export-option-desc {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="brand">TEMPEST NAVIGATOR</div>
+                <h1>🧭 CORE Business Plan Builder</h1>
+                <p>Your AI-powered guide to creating professional business plans</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message">
+                <div class="avatar ai-avatar">TN</div>
+                <div class="message-content">
+                    <strong>Welcome to Tempest Navigator's CORE Business Plan Builder!</strong><br><br>
+                    I'm your AI business planning assistant, and I'll guide you through creating a comprehensive business plan using our proven CORE template methodology. This is the same professional framework used by successful entrepreneurs and businesses worldwide.<br><br>
+                    <strong>Let's start with the foundation - what's your business idea or the name of your business?</strong>
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="selectQuickResponse('I have a consulting business idea')">Consulting Business</button>
+                        <button class="quick-btn" onclick="selectQuickResponse('I want to start a service business')">Service Business</button>
+                        <button class="quick-btn" onclick="selectQuickResponse('I have a product-based business')">Product Business</button>
+                        <button class="quick-btn" onclick="selectQuickResponse('I need help choosing a business type')">Not Sure Yet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input 
+                type="text" 
+                class="input-field" 
+                id="userInput" 
+                placeholder="Type your response here..."
+                onkeypress="handleKeyPress(event)"
+            >
+            <button class="send-btn" onclick="sendMessage()" id="sendBtn">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // Business plan sections matching CORE template
+        const businessPlanSections = [
+            'The Company',
+            'Services Provided',
+            'Mission Statement',
+            'Organizational Structure',
+            'Operations Plan',
+            'Staffing Plan',
+            'Marketing and Sales Plan',
+            'Competitor Analysis',
+            'Licensing and Permits',
+            'Financial Plan'
+        ];
+        
+        let currentSection = 0;
+        let businessPlanData = {};
+        let conversationState = 'initial';
+        
+        // AI response templates based on CORE business plan sections
+        const aiResponses = {
+            initial: [
+                "Great! Let's dive deeper into your business concept. Can you describe your company in detail - what is your business, what problem does it solve, and what makes it unique?",
+                "Perfect! Now I understand your business idea. Let's start building your comprehensive business plan using our proven CORE template."
+            ],
+            company: [
+                "Excellent company description! Now let's detail your services. What specific services or products will you provide? Be as comprehensive as possible - think about all the ways you can help your clients.",
+                "Great foundation! Let's move to your services section and map out everything you'll offer to your customers."
+            ],
+            services: [
+                "Fantastic service offerings! Now let's craft your mission statement. What is your company's core purpose? What do you aim to achieve for your clients and how do you want to impact your industry?",
+                "Perfect! Let's create a powerful mission statement that captures your company's purpose and values."
+            ],
+            mission: [
+                "Excellent mission statement! Now let's discuss your organizational structure. Who are the key people in your business? What are their backgrounds, roles, and what expertise do they bring?",
+                "Great! Let's build out your leadership team and organizational structure."
+            ],
+            structure: [
+                "Perfect team structure! Now let's detail your operations plan. How will your business function day-to-day? What processes, systems, and procedures will you have in place?",
+                "Excellent! Let's map out how your business will operate on a daily basis."
+            ],
+            operations: [
+                "Great operational planning! Now let's work on your staffing plan. How many employees will you need? What positions will you hire for? What's your recruitment and training strategy?",
+                "Perfect! Let's develop a comprehensive staffing and hiring strategy."
+            ],
+            staffing: [
+                "Excellent staffing strategy! Now let's dive into your marketing and sales plan. Who is your target market? How will you reach them? What's your competitive advantage?",
+                "Great! Let's create a comprehensive marketing strategy to attract and retain customers."
+            ],
+            marketing: [
+                "Solid marketing approach! Now let's analyze your competition. Who are your main competitors? What are their strengths and weaknesses? How will you differentiate yourself?",
+                "Perfect! Let's conduct a thorough competitor analysis to position your business strategically."
+            ],
+            competitors: [
+                "Great competitive analysis! Now let's address licensing and permits. What licenses, permits, or certifications will your business need? Are there any regulatory requirements specific to your industry?",
+                "Excellent! Let's ensure you have all the legal requirements covered for your business operations."
+            ],
+            licensing: [
+                "Perfect compliance planning! Finally, let's work on your financial plan. What are your startup costs? How will you fund the business? What are your revenue projections and financial goals?",
+                "Great! Let's create a comprehensive financial plan including startup costs, funding sources, and financial projections."
+            ],
+            financial: [
+                "🎉 Outstanding work! You've completed your comprehensive business plan using our CORE template. Let me compile everything into a professional document that matches industry standards.",
+                "Excellent! Your business plan is complete and ready for investors, lenders, or strategic planning."
+            ],
+            complete: [
+                "Your business plan is ready! Would you like me to export it in the CORE template format or make any revisions to specific sections?",
+                "Amazing work! Your professional business plan is complete and follows proven industry standards."
+            ]
+        };
+        
+        function updateProgress() {
+            const progress = (currentSection / businessPlanSections.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function addMessage(content, isUser = false, showTyping = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            
+            if (showTyping) {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message';
+                typingDiv.innerHTML = `
+                    <div class="avatar ai-avatar">AI</div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <span>Tempest Navigator is analyzing</span>
+                            <div class="typing-dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                setTimeout(() => {
+                    chatContainer.removeChild(typingDiv);
+                    addActualMessage(content, isUser);
+                }, 1500);
+            } else {
+                addActualMessage(content, isUser);
+            }
+        }
+        
+        function addActualMessage(content, isUser) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : ''}`;
+            
+            const avatarClass = isUser ? 'user-avatar' : 'ai-avatar';
+            const avatarText = isUser ? 'You' : 'TN';
+            
+            messageDiv.innerHTML = `
+                <div class="avatar ${avatarClass}">${avatarText}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function generateAIResponse(userInput) {
+            // Store user input in business plan data
+            const sectionKey = businessPlanSections[currentSection] || 'general';
+            if (!businessPlanData[sectionKey]) {
+                businessPlanData[sectionKey] = [];
+            }
+            businessPlanData[sectionKey].push(userInput);
+            
+            // Generate contextual response
+            let response = "";
+            
+            if (conversationState === 'initial') {
+                if (currentSection === 0) {
+                    response = "Perfect! I can see you have a clear vision. Let's structure this into a professional business plan.<br><br>";
+                    response += "<div class='section-preview'><strong>📋 Business Overview Section</strong><br>Let's start by clearly defining your business concept, mission, and core value proposition.</div>";
+                    response += "Can you describe your business in 2-3 sentences? Think of this as your elevator pitch - what do you do and why does it matter?";
+                    conversationState = 'businessOverview';
+                }
+            } else if (conversationState === 'businessOverview') {
+                response = "Excellent business description! That's a strong foundation.<br><br>";
+                response += "<div class='section-preview'><strong>🎯 Market Analysis Section</strong><br>Now let's understand your market and competitive landscape.</div>";
+                response += "Who is your target customer? Describe your ideal customer profile including demographics, needs, and buying behavior.";
+                currentSection = 1;
+                conversationState = 'marketAnalysis';
+            } else if (conversationState === 'marketAnalysis') {
+                response = "Great market insight! Understanding your customers is crucial.<br><br>";
+                response += "<div class='section-preview'><strong>🛍️ Products & Services Section</strong><br>Let's detail exactly what you're offering to the market.</div>";
+                response += "Describe your main products or services. What specific problems do they solve and what benefits do customers get?";
+                currentSection = 2;
+                conversationState = 'products';
+            } else if (conversationState === 'products') {
+                response = "Fantastic! Your offering sounds compelling.<br><br>";
+                response += "<div class='section-preview'><strong>📢 Marketing Strategy Section</strong><br>How will you reach and attract your target customers?</div>";
+                response += "What's your marketing and sales strategy? How will you promote your business and convert prospects into customers?";
+                currentSection = 3;
+                conversationState = 'marketing';
+            } else if (conversationState === 'marketing') {
+                response = "Solid marketing approach! That should help you reach your audience effectively.<br><br>";
+                response += "<div class='section-preview'><strong>⚙️ Operations Plan Section</strong><br>Let's map out how your business will function day-to-day.</div>";
+                response += "Describe your operational setup. What processes, equipment, suppliers, or facilities do you need to run your business?";
+                currentSection = 4;
+                conversationState = 'operations';
+            } else if (conversationState === 'operations') {
+                response = "Great operational planning! You're thinking through the practical aspects well.<br><br>";
+                response += "<div class='section-preview'><strong>👥 Management Team Section</strong><br>Every successful business needs the right people.</div>";
+                response += "Tell me about your team structure. Who are the key people involved and what expertise do they bring?";
+                currentSection = 5;
+                conversationState = 'team';
+            } else if (conversationState === 'team') {
+                response = "Excellent! Having the right team is critical for success.<br><br>";
+                response += "<div class='section-preview'><strong>💰 Financial Projections Section</strong><br>Let's work on the numbers that will drive your business.</div>";
+                response += "What are your financial projections? Consider startup costs, monthly expenses, and revenue expectations for the first 1-3 years.";
+                currentSection = 6;
+                conversationState = 'financials';
+            } else if (conversationState === 'financials') {
+                response = "🎉 Fantastic work! You've completed all the core sections of your business plan.<br><br>";
+                response += generateBusinessPlanSummary();
+                response += "<br><br>Would you like me to help you refine any section or export this business plan?";
+                response += "<br><div style='margin-top: 15px;'>";
+                response += "<button class='export-btn' onclick='showExportOptions()'>📄 Export Business Plan</button>";
+                response += "</div>";
+                currentSection = 7;
+                conversationState = 'complete';
+            } else if (conversationState === 'complete') {
+                response = "I can help you refine any section or export your plan. What would you like to do next?<br><br>";
+                response += "<br><div style='margin-top: 15px;'>";
+                response += "<button class='export-btn' onclick='showExportOptions()'>📄 Export Business Plan</button>";
+                response += "<button class='export-btn' onclick='startOver()' style='background: linear-gradient(135deg, #e74c3c, #c0392b); margin-left: 10px;'>🔄 Start New Plan</button>";
+                response += "</div>";
+            }
+            
+            updateProgress();
+            return response;
+        }
+        
+        function generateBusinessPlanSummary() {
+            let summary = "<div class='section-preview'><strong>📋 Your Business Plan Summary</strong><br><br>";
+            
+            Object.keys(businessPlanData).forEach(section => {
+                if (businessPlanData[section].length > 0) {
+                    summary += `<strong>${section}:</strong> ${businessPlanData[section].join(' ')}<br><br>`;
+                }
+            });
+            
+            summary += "</div>";
+            return summary;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            // Add user message
+            addMessage(message, true);
+            
+            // Clear input
+            input.value = '';
+            
+            // Generate and add AI response with typing effect
+            const aiResponse = generateAIResponse(message);
+            addMessage(aiResponse, false, true);
+        }
+        
+        function selectQuickResponse(response) {
+            document.getElementById('userInput').value = response;
+            sendMessage();
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function showExportOptions() {
+            const exportOptionsHTML = `
+                <div class='export-options'>
+                    <h3 style='margin-bottom: 15px; color: #2c3e50;'>📄 Choose Export Format</h3>
+                    
+                    <div class='export-option' onclick='exportAsWord()'>
+                        <div class='export-option-icon'>📘</div>
+                        <div class='export-option-text'>
+                            <div class='export-option-title'>Microsoft Word (.docx)</div>
+                            <div class='export-option-desc'>Professional document format, fully editable</div>
+                        </div>
+                    </div>
+                    
+                    <div class='export-option' onclick='exportAsPDF()'>
+                        <div class='export-option-icon'>📕</div>
+                        <div class='export-option-text'>
+                            <div class='export-option-title'>PDF Document (.pdf)</div>
+                            <div class='export-option-desc'>Print-ready format, preserves formatting</div>
+                        </div>
+                    </div>
+                    
+                    <div class='export-option' onclick='exportToGoogleDocs()'>
+                        <div class='export-option-icon'>📗</div>
+                        <div class='export-option-text'>
+                            <div class='export-option-title'>Google Docs</div>
+                            <div class='export-option-desc'>Opens directly in Google Docs for collaboration</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            addMessage(exportOptionsHTML, false);
+        }
+        
+        function exportAsWord() {
+            // Create HTML content matching CORE template format
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>CORE Business Plan</title>
+                    <style>
+                        body { font-family: 'Calibri', sans-serif; font-size: 11pt; line-height: 1.15; margin: 1in; }
+                        h1 { font-size: 18pt; font-weight: bold; color: #1f4e79; margin-top: 24pt; margin-bottom: 12pt; }
+                        h2 { font-size: 13pt; font-weight: bold; color: #1f4e79; margin-top: 18pt; margin-bottom: 6pt; }
+                        h3 { font-size: 12pt; font-weight: bold; color: #1f4e79; margin-top: 12pt; margin-bottom: 6pt; }
+                        p { margin-bottom: 12pt; text-align: justify; }
+                        .toc { border-bottom: 1pt solid #1f4e79; padding-bottom: 12pt; margin-bottom: 24pt; }
+                        .section { margin-bottom: 24pt; }
+                        ul { margin-left: 36pt; }
+                        li { margin-bottom: 6pt; }
+                        .underline { text-decoration: underline; }
+                        .header-image { text-align: center; margin-bottom: 24pt; }
+                    </style>
+                </head>
+                <body>
+                    <div class='header-image'>
+                        <h1 style='color: #4472C4; border-bottom: 2pt solid #4472C4; padding-bottom: 6pt;'>BUSINESS PLAN</h1>
+                        <p><em>Generated by AI Business Plan Builder using CORE Template</em></p>
+                    </div>
+                    
+                    <div class='toc'>
+                        <h2>Table of Contents</h2>
+            `;
+            
+            // Add table of contents
+            Object.keys(businessPlanData).forEach((section, index) => {
+                if (businessPlanData[section].length > 0) {
+                    htmlContent += `<p>${section} ........................... ${index + 1}</p>`;
+                }
+            });
+            
+            htmlContent += `</div>`;
+            
+            // Add sections matching CORE template structure
+            Object.keys(businessPlanData).forEach(section => {
+                if (businessPlanData[section].length > 0) {
+                    htmlContent += `
+                        <div class='section'>
+                            <h1>${section}</h1>
+                    `;
+                    
+                    // Add section-specific formatting
+                    if (section === 'The Company') {
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Services Provided') {
+                        htmlContent += `<p>We provide a variety of services including, but not limited to:</p>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Mission Statement') {
+                        htmlContent += `<ul><li><strong>Our Mission:</strong> ${businessPlanData[section].join(' ')}</li></ul>`;
+                    } else if (section === 'Organizational Structure') {
+                        htmlContent += `<h2>Leadership Team</h2>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Operations Plan') {
+                        htmlContent += `<p>Our operations plan includes the following key components:</p>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Staffing Plan') {
+                        htmlContent += `<p>This comprehensive hiring and training plan is designed to establish a skilled and motivated team:</p>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Marketing and Sales Plan') {
+                        htmlContent += `<h2>Market Analysis</h2>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Competitor Analysis') {
+                        htmlContent += `<p>The following companies represent our competitive landscape:</p>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Licensing and Permits') {
+                        htmlContent += `<p>Starting this business requires obtaining the appropriate licenses and permits:</p>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else if (section === 'Financial Plan') {
+                        htmlContent += `<p>This financial plan outlines the structure, tools, and strategies for managing our financial operations:</p>`;
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    } else {
+                        htmlContent += `<p>${businessPlanData[section].join(' ')}</p>`;
+                    }
+                    
+                    htmlContent += `</div>`;
+                }
+            });
+            
+            // Add conclusion
+            htmlContent += `
+                    <div class='section'>
+                        <h1>Conclusion</h1>
+                        <p>This business plan represents a comprehensive strategy for achieving sustainable growth and success. By combining clear vision, strategic planning, and operational excellence, we are positioned to deliver exceptional value to our clients and stakeholders. This plan serves as our roadmap for establishing a strong market presence and building lasting business relationships.</p>
+                        <p>With dedicated leadership, proven strategies, and a commitment to continuous improvement, we are confident in our ability to achieve the goals outlined in this business plan and create meaningful impact in our industry.</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Create blob and download
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword'
+            });
+            
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Tempest-Navigator-CORE-Business-Plan.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            addMessage("✅ Your Tempest Navigator CORE business plan has been downloaded as a professionally formatted Word document!", false);
+        }
+        
+        function exportAsPDF() {
+            // Create HTML content optimized for PDF
+            let htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>Business Plan</title>
+                    <style>
+                        @page { margin: 1in; }
+                        body { 
+                            font-family: 'Times New Roman', serif; 
+                            font-size: 12pt; 
+                            line-height: 1.6; 
+                            color: #333;
+                        }
+                        h1 { 
+                            font-size: 20pt; 
+                            font-weight: bold; 
+                            color: #2c3e50; 
+                            text-align: center;
+                            border-bottom: 3px solid #3498db; 
+                            padding-bottom: 15px;
+                            margin-bottom: 30px;
+                        }
+                        h2 { 
+                            font-size: 16pt; 
+                            font-weight: bold; 
+                            color: #34495e; 
+                            margin-top: 25px; 
+                            margin-bottom: 15px;
+                            border-left: 4px solid #3498db;
+                            padding-left: 15px;
+                        }
+                        p { 
+                            margin-bottom: 15pt; 
+                            text-align: justify; 
+                        }
+                        .section { 
+                            margin-bottom: 30px; 
+                            page-break-inside: avoid;
+                        }
+                        .footer {
+                            text-align: center;
+                            font-style: italic;
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            border-top: 1px solid #bdc3c7;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>BUSINESS PLAN</h1>
+            `;
+            
+            Object.keys(businessPlanData).forEach(section => {
+                if (businessPlanData[section].length > 0) {
+                    htmlContent += `
+                        <div class='section'>
+                            <h2>${section}</h2>
+                            <p>${businessPlanData[section].join(' ')}</p>
+                        </div>
+                    `;
+                }
+            });
+            
+            htmlContent += `
+                    <div class='footer'>
+                        <p>Generated by Tempest Navigator's CORE Business Plan Builder</p>
+                        <p style='font-size: 10pt; margin-top: 10px;'>www.tempestnavigator.com</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Open in new window for PDF printing
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(htmlContent);
+            newWindow.document.close();
+            
+            // Trigger print dialog after content loads
+            newWindow.onload = function() {
+                setTimeout(() => {
+                    newWindow.print();
+                }, 500);
+            };
+            
+            addMessage("🖨️ Your Tempest Navigator business plan is opening in a new window. Use your browser's print function and select 'Save as PDF' as the destination!", false);
+        }
+        
+        function exportToGoogleDocs() {
+            // Create formatted text for Google Docs
+            let docContent = "BUSINESS PLAN\\n" + "=".repeat(50) + "\\n\\n";
+            
+            Object.keys(businessPlanData).forEach(section => {
+                if (businessPlanData[section].length > 0) {
+                    docContent += section.toUpperCase() + "\\n" + "-".repeat(section.length) + "\\n";
+                    docContent += businessPlanData[section].join(' ') + "\\n\\n";
+                }
+            });
+            
+            docContent += "\\nGenerated by Tempest Navigator's CORE Business Plan Builder";
+            docContent += "\\nwww.tempestnavigator.com";
+            
+            // Create Google Docs URL with pre-filled content
+            const googleDocsUrl = `https://docs.google.com/document/create?usp=drive_web&title=Tempest%20Navigator%20Business%20Plan&body=${encodeURIComponent(docContent)}`;
+            
+            // Open Google Docs in new tab
+            window.open(googleDocsUrl, '_blank');
+            
+            addMessage("🌐 Opening Google Docs in a new tab with your Tempest Navigator business plan content. You may need to sign in to your Google account!", false);
+        }
+        
+        function exportBusinessPlan() {
+            showExportOptions();
+        }
+        
+        function startOver() {
+            if (confirm('Are you sure you want to start a new business plan? This will clear all current progress.')) {
+                location.reload();
+            }
+        }
+        
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
